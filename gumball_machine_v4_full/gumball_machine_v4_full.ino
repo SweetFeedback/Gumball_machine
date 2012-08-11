@@ -41,7 +41,9 @@ void setup() {
 
 void loop() {
   // for php
+  getSensorData();
   serialCallResponse();
+  simple_led_task();
 }
 
 void getSensorData() {
@@ -59,7 +61,19 @@ void getSensorData() {
   outputValue[3] = distanceCalibration(sensorValue[3]);
   outputValue[4] = sensorValue[4];
 }
-
+void simple_led_task(){
+  smoothedDistance = lowpassFilter(outputValue[3], smoothedDistance, 0.25); 
+  if(isHumanAround(smoothedDistance)){
+    ledControl(HIGH);
+    humanState = true;
+  }
+  else{
+    if(humanState == true)
+      playDisappointedSound();
+    ledControl(LOW);
+    humanState = false;
+  }
+}
 int getWindowState(){
   int reading = digitalRead(WindowInPin);
   if(reading == HIGH) return LOW;
@@ -81,7 +95,6 @@ void serialCallResponse(){
     if (inByte == 'A') {
         giveCandies();
     }else if (inByte == 'B') {
-        getSensorData();
         for(i = 0; i < sensorNum -1; i++){
               Serial.print(outputValue[i]);
               Serial.print(",");
@@ -165,4 +178,10 @@ void establishContact() {
     Serial.println("0");
     delay(500);
   }
+}
+int lowpassFilter(int newValue, int oldValue, float alpha) {
+  return alpha * newValue + (1 - alpha) * oldValue;
+}
+boolean isHumanAround(int distance){
+  return (distance < 500);
 }
