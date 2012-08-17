@@ -1,0 +1,26 @@
+Specification
+
+Analog Pins
+A0  Microphone
+A1  Photoelectric
+A2  Thermometer 
+A3  Distance Sensor
+A4  Extension
+A5  Extension
+
+Digital Pins
+0   RX
+1   TX
+2   Window Sensor
+3   Bottom Switch
+4   Motor
+5   Extension
+6   Extension
+7   Extension
+8   Speaker
+9
+10  LED
+11
+12
+13
+
