@@ -28,6 +28,9 @@ int smoothedDistance = 0;
 
 enum tempUnit{Kelvin,Celcius,Fahrenheit};
 
+//for group collaboration experiment
+int count = 0;
+
 void setup() {
   // initialize serial communications at 9600 bps:
   Serial.begin(9600);
@@ -70,15 +73,53 @@ void serialCallResponse(){
     int inByte = Serial.read();
     int i;
     if (inByte == 'A') {
-        giveCandies();
+      giveCandies();
     }else if (inByte == 'B') {
-        for(i = 0; i < sensorNum -1; i++){
-              Serial.print(outputValue[i]);
-              Serial.print(",");
-        }
-        Serial.println(outputValue[i]);
+      for(i = 0; i < sensorNum -1; i++){
+        Serial.print(outputValue[i]);
+        Serial.print(",");
+      }
+      Serial.println(outputValue[i]);
     }else if (inByte == 'C'){
-        playDisappointedSound();
+      playDisappointedSound();
+    }else if (inByte == 'D'){ //incremental positive feedback
+      count += 1;
+      if(count >= 10){
+        for (int i = 0; i <= 80; i++) {
+          tone(SpeakerOutPin, (400+count*40) * pow(1+i/60.0, 4));
+          delay(5);
+          noTone(SpeakerOutPin);
+        }
+        count = 0;
+      }else{
+        for (int i = 0; i <= 30; i+=1) {
+          tone(SpeakerOutPin, (400+count*40) * pow(1+i/60.0, 2));
+          delay(7);
+          noTone(SpeakerOutPin);
+        }
+      }
+    }
+    
+    //support for customized tone
+    switch(inByte) {
+      case '1': 
+      case '2':
+      case '3':
+      case '4':
+      case '5':
+      case '6':
+      case '7':
+      case '8':
+      case '9':
+        tone(SpeakerOutPin, 400+(inByte-48)*40);
+        delay(80);
+        noTone(SpeakerOutPin);
+      break;
+      case '0':
+        tone(SpeakerOutPin, 400+(10)*40);
+        delay(80);
+        noTone(SpeakerOutPin);
+      break;
     }
   }
 }
