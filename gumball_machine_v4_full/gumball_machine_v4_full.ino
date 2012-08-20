@@ -93,15 +93,15 @@ void serialCallResponse(){
     int inByte = Serial.read();
     int i;
     if (inByte == 'A') {
-        giveCandies();
+      giveCandies();
     }else if (inByte == 'B') {
-        for(i = 0; i < sensorNum -1; i++){
-              Serial.print(outputValue[i]);
-              Serial.print(",");
-        }
-        Serial.println(outputValue[i]);
+      for(i = 0; i < sensorNum -1; i++){
+        Serial.print(outputValue[i]);
+        Serial.print(",");
+      }
+      Serial.println(outputValue[i]);
     }else if (inByte == 'C'){
-        playDisappointedSound();
+      playDisappointedSound();
     }
   }
 }
