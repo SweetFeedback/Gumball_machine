@@ -13,23 +13,32 @@ const int MotorOutPin = 4; // Motor connected from digital pin 13 to ground
 const int SpeakerOutPin = 8; // Speaker connected from digital pin 8 to ground
 const int LedOutPin = 10; // LED connected from digital pin 12 to ground
 
-const int sensorNum = 5;
+const int sensorNum = 6;
 int sensorValue[sensorNum] = {0};        // initialize value read from the pot
 int outputValue[sensorNum] = {0};        // initialize value output to the PWM (analog out)
 int print_mask[sensorNum] = {0};       // 0 if the data is not going to show, 1 otherwise
 
 const int MachineID = 100;
 const int MAX_DISTANCE = 1000;
-int noiseLevel = 0;
 int ledState = LOW;
+
 
 boolean humanState = false;
 int smoothedDistance = 0;
-
+int balanceMicVal = -1;
 enum tempUnit{Kelvin,Celcius,Fahrenheit};
 
 //for group collaboration experiment
 int count = 0;
+long total = 0;
+int index = 0;
+const double THRES40DB = 36.7;
+const double THRES45DB = 58.3;
+const double THRES50DB = 70.3;
+const double THRES55DB = 96.3;
+const double THRES60DB = 139.7;
+const double THRES65DB = 216;
+const double THRES70DB = 269;
 
 void setup() {
   // initialize serial communications at 9600 bps:
@@ -37,8 +46,10 @@ void setup() {
   pinMode(LedOutPin, OUTPUT);
   pinMode(SpeakerOutPin, OUTPUT);
   pinMode(MotorOutPin, OUTPUT);
+
   digitalWrite(MotorOutPin, HIGH);
   pinMode(WindowInPin, INPUT);
+  pinMode(BottomSwitchInPin, INPUT);
   //digitalWrite(MotorOutPin, LOW);
   flashLed(LedOutPin, 3, 500);
   //playDisappointedSound();
@@ -59,15 +70,42 @@ void getSensorData() {
   sensorValue[2] = analogRead(ThermtrInPin);  
   sensorValue[3] = analogRead(DistanceInPin);
   sensorValue[4] = getWindowState();
-  
+  sensorValue[5] = digitalRead(BottomSwitchInPin);
+
   // Sensor calibration
-  outputValue[0] = map(sensorValue[0],  500, 700, 0, 255);  
-  outputValue[1] = map(sensorValue[1],  0, 1023, 0, 255);  
+  outputValue[0] = noiseLevel(sensorValue[0]);
+  //outputValue[0] = sensorValue[0];
+  outputValue[1] = sensorValue[1];
   outputValue[2] = thermistorCalibration(sensorValue[2], Celcius);  
   outputValue[3] = distanceCalibration(sensorValue[3]);
   outputValue[4] = sensorValue[4];
+  outputValue[5] = sensorValue[5];
 }
 
+void calcBalanceMicVal(int micVal){
+  if(balanceMicVal == -1){
+      balanceMicVal = micVal;
+      for(int i = 0; i < numReadings; i++){
+        micReadings[i] = micVal;
+        total += micVal;
+      }
+  }
+  else{
+    // subtract the last reading:
+    total= total - micReadings[index];         
+    // read from the sensor:  
+    micReadings[index] =  micVal; 
+    // add the reading to the total:
+    total= total + micReadings[index];       
+    // advance to the next position in the array:  
+    index = index + 1;                    
+    balanceMicVal = total/numReadings; 
+    // if we're at the end of the array...
+    if (index >= numReadings)              
+      // ...wrap around to the beginning: 
+      index = 0;             
+  }
+}
 void serialCallResponse(){
   if(Serial.available() > 0) {
     int inByte = Serial.read();
@@ -132,7 +170,7 @@ void simple_led_task(){
   }
   else{
     if(humanState == true)
-      playDisappointedSound();
+      //playDisappointedSound();
     ledControl(LOW);
     humanState = false;
   }
@@ -153,6 +191,28 @@ int distanceCalibration(int input){
   if(input >= 80 && input <= 490)
     return 9462/(input - 16.92);
   return MAX_DISTANCE;
+}
+int noiseLevel(int micVal){  
+  calcBalanceMicVal(micVal);
+  int difference = abs(balanceMicVal - micVal);
+
+  if(difference < THRES40DB)
+    return 20;
+  else if(difference < THRES45DB)
+    return 40;
+  else if(difference < THRES50DB)
+    return 45;
+  else if(difference < THRES55DB)
+    return 50;
+  else if(difference < THRES60DB)
+    return 55;
+  else if(difference < THRES65DB)
+    return 60;
+  else if(difference < THRES70DB)
+    return 65;
+  else
+    return 70;
+
 }
 
 // This is the calibration function for thermistor P/N:NTCLE413E2103H400
@@ -223,6 +283,7 @@ void establishContact() {
   while (Serial.available() <= 0) {
     int i;
     Serial.print(MachineID);
+    Serial.print(",");
     for(i = 1; i < sensorNum -1; ++i){ Serial.print("0,");}
     Serial.println("0");
     delay(500);
