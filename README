@@ -1,4 +1,4 @@
-Specification
+Hardware Specification
 
 Analog Pins
 A0  Microphone
@@ -23,4 +23,37 @@ Digital Pins
 11
 12
 13
+
+-----------------------------------------------------
+Software Specification
+
+Sensor data {B}
+- sound [0~255]
+- light [0~255]
+- temperature [0~255]
+- people [0~500]
+- window [0,1]
+
+Feedback type 
+- positive: give candies {A}
+- negative: sound negative feedback {C}
+- sound: accumulated sound {D}
+- sound_level: different tone sound feedback (customized) {0-9}
+
+---------------------------------------------------
+5 Machine w/ sensors
+
+NO.1: 
+input: 5 sensor (people, microphone, temperature, light, window) + switch + pin package
+output: speaker
+(no noise)
+
+NO.2 ~ NO.5:
+the same input/output
+(noise)
+
+(NO.5 - broken motor, driver board)
+
+
+
 
