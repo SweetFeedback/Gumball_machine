@@ -32,13 +32,15 @@ enum tempUnit{Kelvin,Celcius,Fahrenheit};
 int count = 0;
 long total = 0;
 int index = 0;
-const double THRES40DB = 36.7;
-const double THRES45DB = 58.3;
-const double THRES50DB = 70.3;
-const double THRES55DB = 96.3;
-const double THRES60DB = 139.7;
-const double THRES65DB = 216;
-const double THRES70DB = 269;
+const int numReadings = 500;
+int micReadings[numReadings] = {0};
+const double THRES40DB = 36.7/2;
+const double THRES45DB = 58.3/2;
+const double THRES50DB = 70.3/2;
+const double THRES55DB = 96.3/2;
+const double THRES60DB = 139.7/2;
+const double THRES65DB = 216/2;
+const double THRES70DB = 269/2;
 
 void setup() {
   // initialize serial communications at 9600 bps:
@@ -74,7 +76,6 @@ void getSensorData() {
 
   // Sensor calibration
   outputValue[0] = noiseLevel(sensorValue[0]);
-  //outputValue[0] = sensorValue[0];
   outputValue[1] = sensorValue[1];
   outputValue[2] = thermistorCalibration(sensorValue[2], Celcius);  
   outputValue[3] = distanceCalibration(sensorValue[3]);
@@ -195,7 +196,6 @@ int distanceCalibration(int input){
 int noiseLevel(int micVal){  
   calcBalanceMicVal(micVal);
   int difference = abs(balanceMicVal - micVal);
-
   if(difference < THRES40DB)
     return 20;
   else if(difference < THRES45DB)
