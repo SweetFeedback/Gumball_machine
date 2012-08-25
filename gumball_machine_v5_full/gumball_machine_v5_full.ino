@@ -32,7 +32,7 @@ const int numReadings = 500;
 int micReadings[numReadings] = {0};
 long total = 0;
 int index = 0;
-
+float outputNoiseLevel = -1;
 
 void setup() {
   // initialize serial communications at 9600 bps:
@@ -67,7 +67,13 @@ void getSensorData() {
   //sensorValue[5] = digitalRead(BottomSwitchInPin);
 
   // Sensor calibration
-  outputValue[0] = noiseLevel(sensorValue[0]);
+  float newNoiseLevel = noiseLevel(sensorValue[0]);
+  if(outputNoiseLevel == -1){
+    outputNoiseLevel = newNoiseLevel;
+  }else{
+    outputNoiseLevel = lowpassFilter(newNoiseLevel,outputNoiseLevel,0.25);
+  }
+  outputValue[0] = outputNoiseLevel;
   outputValue[1] = sensorValue[1];
   outputValue[2] = thermistorCalibration(sensorValue[2], Celcius);  
   outputValue[3] = distanceCalibration(sensorValue[3]);
@@ -238,7 +244,7 @@ void establishContact() {
   }
 }
 
-int lowpassFilter(int newValue, int oldValue, float alpha) {
+float lowpassFilter(float newValue, float oldValue, float alpha) {
   return alpha * newValue + (1 - alpha) * oldValue;
 }
 
