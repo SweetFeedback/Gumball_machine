@@ -64,7 +64,7 @@ void getSensorData() {
   sensorValue[2] = analogRead(ThermtrInPin);  
   sensorValue[3] = analogRead(DistanceInPin);
   sensorValue[4] = getWindowState();
-  //sensorValue[5] = digitalRead(BottomSwitchInPin);
+  // sensorValue[5] = digitalRead(BottomSwitchInPin);
 
   // Sensor calibration
   float newNoiseLevel = noiseLevel(sensorValue[0]);
@@ -78,7 +78,7 @@ void getSensorData() {
   outputValue[2] = thermistorCalibration(sensorValue[2], Celcius);  
   outputValue[3] = distanceCalibration(sensorValue[3]);
   outputValue[4] = sensorValue[4];
-  //outputValue[5] = sensorValue[5];
+  // outputValue[5] = sensorValue[5];
 }
 
 void calcBalanceMicVal(int micVal){
