@@ -67,6 +67,7 @@ void getSensorData() {
   // sensorValue[5] = digitalRead(BottomSwitchInPin);
 
   // Sensor calibration
+
   float newNoiseLevel = noiseLevel(sensorValue[0]);
   if(outputNoiseLevel == -1){
     outputNoiseLevel = newNoiseLevel;
