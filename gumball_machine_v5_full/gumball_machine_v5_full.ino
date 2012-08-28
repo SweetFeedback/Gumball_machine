@@ -75,7 +75,7 @@ void getSensorData() {
     outputNoiseLevel = lowpassFilter(newNoiseLevel,outputNoiseLevel,0.25);
   }
   outputValue[0] = outputNoiseLevel;
-  outputValue[1] = sensorValue[1];
+  outputValue[1] = map(sensorValue[1],  0, 1023, 0, 255);  
   outputValue[2] = thermistorCalibration(sensorValue[2], Celcius);  
   outputValue[3] = distanceCalibration(sensorValue[3]);
   outputValue[4] = sensorValue[4];
@@ -165,7 +165,7 @@ int noiseLevel(int micVal){
   calcBalanceMicVal(micVal);
   int difference = abs(balanceMicVal - micVal);
   if(difference< 3) 
-  return 0;
+      return 0;
   return 14.9620*(log(difference))-14.2486;
 }
 
