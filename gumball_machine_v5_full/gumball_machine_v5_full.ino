@@ -55,7 +55,8 @@ void setup() {
 void loop() {
   getSensorData();
   serialCallResponse();
-  simple_led_task();
+  breathingLed();
+  //simple_led_task();
 }
 
 // Main Loop Tasks
@@ -163,7 +164,14 @@ void serialCallResponse(){
     }
   }
 }
-
+void breathingLed(){
+  
+  float val = (exp(sin(millis()/2000.0*PI)) - 0.36787944)*108.0;
+  if(getWindowState() == HIGH)
+    analogWrite(LedOutPin, val);
+  else
+    analogWrite(LedOutPin, 0);
+}
 void simple_led_task(){
   smoothedDistance = lowpassFilter(outputValue[3], smoothedDistance, 0.25); 
   if(isHumanAround(smoothedDistance)){
