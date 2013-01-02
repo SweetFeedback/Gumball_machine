@@ -1,7 +1,7 @@
   // Sensors' pin
-const int windowNum = 6;
+const int windowNum = 2;
 int windowPins[8] = {A0,A1,A2,A3,A4,A5,6,7};
-int windowId[8] = {8,9,10,11,12,13};
+int windowId[8] = {1,2};
 int sensorValue[8] = {0};  // variable to store the value coming from the sensor
 int outputValue[8] = {0};
 
@@ -32,6 +32,9 @@ void serialCallResponse(){
   if(Serial.available() > 0) {
     int inByte = Serial.read();
     int i;
+    if(inByte == 'A'){
+       printWindowId();
+    }
     if (inByte == 'B') {
         for(i = 0; i < windowNum -1; i++){
             Serial.print(outputValue[i]);
@@ -42,15 +45,17 @@ void serialCallResponse(){
     
   }
 }
-
-void establishContact() {
-  while (Serial.available() <= 0) {
+void printWindowId(){
     int i;
     for(i = 0; i < windowNum-1; ++i){ 
       Serial.print(windowId[i]);  
       Serial.print(",");
     }
     Serial.println(windowId[i]);
+}
+void establishContact() {
+  while (Serial.available() <= 0) {
+    printWindowId();
     delay(500);    
   }
 
