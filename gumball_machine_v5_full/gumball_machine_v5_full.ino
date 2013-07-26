@@ -285,10 +285,8 @@ void playDisappointedSound() {
 void establishContact() {
   while (Serial.available() <= 0) {
     int i;
-    Serial.print(MachineID);
-    Serial.print(",");
-    for(i = 1; i < sensorNum -1; ++i){ Serial.print("0,");}
-    Serial.println("0");
+    Serial.print("deviceID:");
+    Serial.println(MachineID);
     delay(500);
   }
 }
